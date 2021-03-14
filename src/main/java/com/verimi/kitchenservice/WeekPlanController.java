@@ -1,16 +1,23 @@
 package com.verimi.kitchenservice;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 
-import java.util.*;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import static com.verimi.kitchenservice.WeekPlanConstants.MAXIMUM_PAST_OR_FUTURE_WEEKPLAN_WEEK_COUNT;
 
 @RestController
 public class WeekPlanController {
 
-    private static final Logger logger = LoggerFactory.getLogger(StaffMemberController.class);
     private final StaffMemberRepository staffMemberRepository;
     private final DayOfServiceRepository dayOfServiceRepository;
 
@@ -19,12 +26,16 @@ public class WeekPlanController {
         this.dayOfServiceRepository = dayOfServiceRepository;
     }
 
-    @GetMapping("/current_week")
-    List<DayOfService> all() {
-        List<DayOfService> result = new ArrayList<DayOfService>();
+    @GetMapping("/week_plan")
+    public List<DayOfService> all(@RequestParam("date") @DateTimeFormat(pattern="yyyy-MM-dd") Date requestedDate) {
+        List<DayOfService> dayOfServiceList = new ArrayList<>();
 
-        Date[] daysOfCurrentWeek = getDaysOfCurrentWeek(new Date());
-        for (Date day: daysOfCurrentWeek) {
+        if ( requestedDate.before( getOneWeekPastDate() ) || requestedDate.after( getOneWeekFutureDate() )) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST, "requested Date is too past or future. Please consider recent date");
+        }
+        Date[] daysOfRequestedWeek = getDaysOfRequestedWeek(requestedDate);
+        for (Date day: daysOfRequestedWeek) {
             DayOfService dayOfService = dayOfServiceRepository.findByCalendarDay(day);
             if (dayOfService == null) {
                 dayOfService = dayOfServiceRepository.save(new DayOfService(day));
@@ -36,32 +47,50 @@ public class WeekPlanController {
                 staffMemberRepository.save(staffMember);
             }
             dayOfServiceRepository.save(dayOfService);
-            result.add(dayOfService);
+            dayOfServiceList.add(dayOfService);
         }
 
-        return result;
+        return dayOfServiceList;
     }
 
-    protected StaffMember findNextStaffMemberForService() {
-        List<StaffMember> all = staffMemberRepository.findAll();
+    private StaffMember findNextStaffMemberForService() {
+        List<StaffMember> allStaffMembers = staffMemberRepository.findAll();
 
-        all.sort(new Comparator<StaffMember>() {
-            @Override
-            public int compare(StaffMember o1, StaffMember o2) {
-                if(o1.getLastService() == null) {
-                    return -1;
-                }
-                if(o2.getLastService() == null) {
-                    return 1;
-                }
-                return o1.getLastService().compareTo(o2.getLastService());
+        allStaffMembers.sort( (staffMember1, staffMember2) -> {
+            if(staffMember1.getLastService() == null) {
+                return -1;
             }
-        });
+            if(staffMember2.getLastService() == null) {
+                return 1;
+            }
+            return staffMember1.getLastService().compareTo(staffMember2.getLastService());
+        } );
 
-        return all.get(0);
+        return allStaffMembers.get(0);
     }
 
-    protected Date[] getDaysOfCurrentWeek(Date refDate) {
+    // TODO: 14.03.21 Can be moved to Utility class
+    private Date getOneWeekPastDate(){
+        Date date = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.WEEK_OF_MONTH, -MAXIMUM_PAST_OR_FUTURE_WEEKPLAN_WEEK_COUNT);
+        date = c.getTime();
+        return date;
+    }
+
+    // TODO: 14.03.21 Can be moved to Utility class
+    private Date getOneWeekFutureDate(){
+        Date date = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.WEEK_OF_MONTH, MAXIMUM_PAST_OR_FUTURE_WEEKPLAN_WEEK_COUNT);
+        date = c.getTime();
+        return date;
+    }
+
+    // TODO: 14.03.21 Can be moved to Utility class
+    Date[] getDaysOfRequestedWeek(Date refDate) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(refDate);
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.getInstance().getFirstDayOfWeek());
