@@ -67,6 +67,13 @@ Now that you know the software, please tell us the three things which you think 
 you picked this and how it should be changed. This can be in regards of the code structure, the functionality or non
 function requirements, like security.
 
+### 3: Answer
+
+1. Code refactoring would be better as it simplifies the API source code understanding
+2. Remove exception stacktrace and make sure response contains a message. Stacktrace expose internal 
+classes and dependencies in some cases which people identify security breaches.
+3. Consider adding API documentation using Swagger or at least write all the available endpoints
+and how to use them in the README.md file.
 
 ## Keep in Mind
 **Please do not share the challenge and implementation on public web**. 

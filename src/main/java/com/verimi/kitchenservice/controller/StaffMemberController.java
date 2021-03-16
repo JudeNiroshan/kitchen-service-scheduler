@@ -26,14 +26,14 @@ public class StaffMemberController {
         return staffMemberService.findAllStaffMembers();
     }
 
-    @PostMapping("/staff_members")
-    StaffMember newStaffMember(@RequestBody StaffMember newStaffMember) {
-        return staffMemberService.createStaffMember( newStaffMember );
-    }
-
     @GetMapping("/staff_members/{id}")
     StaffMember findById(@PathVariable Long id) {
         return staffMemberService.findById( id );
+    }
+
+    @PostMapping("/staff_members")
+    StaffMember newStaffMember(@RequestBody StaffMember newStaffMember) {
+        return staffMemberService.createStaffMember( newStaffMember );
     }
 
     @PutMapping("/staff_members/{id}")
