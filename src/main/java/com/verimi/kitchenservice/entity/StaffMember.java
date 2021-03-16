@@ -1,9 +1,10 @@
-package com.verimi.kitchenservice;
+package com.verimi.kitchenservice.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 public class StaffMember {
@@ -18,6 +19,11 @@ public class StaffMember {
     @Temporal(TemporalType.DATE)
     @JsonFormat(pattern="yyyy-MM-dd")
     private Date lastService;
+
+    @ElementCollection
+    @Temporal(TemporalType.DATE)
+    @JsonFormat(pattern="yyyy-MM-dd")
+    private List<Date> dayOffs;
 
     public StaffMember() {
 
@@ -46,5 +52,13 @@ public class StaffMember {
 
     public void setLastService(Date lastService) {
         this.lastService = lastService;
+    }
+
+    public List<Date> getDayOffs() {
+        return dayOffs;
+    }
+
+    public void setDayOffs(List<Date> dayOffs) {
+        this.dayOffs = dayOffs;
     }
 }

@@ -1,4 +1,4 @@
-package com.verimi.kitchenservice;
+package com.verimi.kitchenservice.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 

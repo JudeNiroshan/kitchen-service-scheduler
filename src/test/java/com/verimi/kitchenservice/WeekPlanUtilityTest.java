@@ -1,23 +1,20 @@
 package com.verimi.kitchenservice;
 
-import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
-class WeekPlanControllerTest {
-    @Mock StaffMemberRepository staffMemberRepository;
-    @Mock DayOfServiceRepository dayOfServiceRepository;
-    private final WeekPlanController sut = new WeekPlanController(staffMemberRepository, dayOfServiceRepository);
+import static com.verimi.kitchenservice.utility.WeekPlanUtility.getDaysOfRequestedWeek;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class WeekPlanUtilityTest {
 
     @Test
     void checkWeekContent() throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date[] daysOfCurrentWeek = sut.getDaysOfRequestedWeek(sdf.parse("2020-12-14"));
+        Date[] daysOfCurrentWeek = getDaysOfRequestedWeek(sdf.parse("2020-12-14"));
         assertEquals("2020-12-14", sdf.format(daysOfCurrentWeek[0]));
         assertEquals("2020-12-15", sdf.format(daysOfCurrentWeek[1]));
         assertEquals("2020-12-16", sdf.format(daysOfCurrentWeek[2]));
@@ -28,7 +25,7 @@ class WeekPlanControllerTest {
     @Test
     void checkWeekEndOfYearContent() throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date[] daysOfCurrentWeek = sut.getDaysOfRequestedWeek(sdf.parse("2020-01-01"));
+        Date[] daysOfCurrentWeek = getDaysOfRequestedWeek(sdf.parse("2020-01-01"));
         assertEquals("2019-12-30", sdf.format(daysOfCurrentWeek[0]));
         assertEquals("2019-12-31", sdf.format(daysOfCurrentWeek[1]));
         assertEquals("2020-01-01", sdf.format(daysOfCurrentWeek[2]));
@@ -38,7 +35,7 @@ class WeekPlanControllerTest {
     @Test
     void checkWeekInFuture() throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date[] daysOfCurrentWeek = sut.getDaysOfRequestedWeek(sdf.parse("2025-02-16"));
+        Date[] daysOfCurrentWeek = getDaysOfRequestedWeek(sdf.parse("2025-02-16"));
         assertEquals("2025-02-10", sdf.format(daysOfCurrentWeek[0]));
         assertEquals("2025-02-11", sdf.format(daysOfCurrentWeek[1]));
         assertEquals("2025-02-12", sdf.format(daysOfCurrentWeek[2]));
@@ -49,7 +46,7 @@ class WeekPlanControllerTest {
     @Test
     void checkSize() throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date[] daysOfCurrentWeek = sut.getDaysOfRequestedWeek(sdf.parse("2020-01-01"));
+        Date[] daysOfCurrentWeek = getDaysOfRequestedWeek(sdf.parse("2020-01-01"));
         assertEquals(5, daysOfCurrentWeek.length);
 
     }
