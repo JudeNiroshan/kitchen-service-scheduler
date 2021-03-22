@@ -1,4 +1,4 @@
-# Verimi Coding Challenge
+# Kitchen-Service-Scheduler 🍽️
 We would like to thank you for taking time and participate in our coding challenge, we named it **Kitchen Service Plan**.
 
 ## The Story
@@ -76,7 +76,6 @@ classes and dependencies in some cases which people identify security breaches.
 and how to use them in the README.md file.
 
 ## Keep in Mind
-**Please do not share the challenge and implementation on public web**. 
 
 Try to design and implement **your changes** as you would do for real production code. If you feel like improving the 
 original source, that is appreciated, but not expected. Show us how **you** create clean, maintainable code that does 
